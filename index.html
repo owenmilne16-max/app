@@ -284,15 +284,32 @@
                     {staff.map(person => (
                       <div
                         key={person.name}
-                        onClick={() => selectPerson(person)}
-                        className="p-4 bg-gray-50 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors border border-gray-200"
+                        className="p-4 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors border border-gray-200 flex justify-between items-start"
                       >
-                        <div className="font-medium text-gray-900">{person.name}</div>
-                        {person.restrictions?.length > 0 && (
-                          <div className="text-sm text-gray-600 mt-1">
-                            {person.restrictions.length} restriction(s)
-                          </div>
-                        )}
+                        <div 
+                          onClick={() => selectPerson(person)}
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="font-medium text-gray-900">{person.name}</div>
+                          {person.restrictions?.length > 0 && (
+                            <div className="text-sm text-gray-600 mt-1">
+                              {person.restrictions.length} restriction(s)
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete ${person.name} from staff list?`)) {
+                              const newStaff = staff.filter(s => s.name !== person.name);
+                              setStaff(newStaff);
+                              saveData(newStaff);
+                            }
+                          }}
+                          className="p-1 hover:bg-red-100 rounded text-red-600"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
                       </div>
                     ))}
                   </div>
