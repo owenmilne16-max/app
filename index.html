@@ -80,6 +80,13 @@
       font-size: 0.95rem;
       margin-bottom: 12px;
     }
+    label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #4f46e5;
@@ -203,10 +210,7 @@
           <button class="btn btn-primary" onclick="addStaff()">+ Add Staff</button>
         </div>
 
-        <div class="flex-between mb-4">
-          <h2 style="margin: 0;">Staff List (<span id="staff-count">0</span>)</h2>
-          <button class="btn btn-danger" onclick="clearAllStaff()" style="font-size: 0.9rem;">🗑️ Clear All Staff</button>
-        </div>
+        <h2 class="mb-4">Staff List (<span id="staff-count">0</span>)</h2>
         <div class="grid" id="staff-list"></div>
 
         <button class="btn btn-success" style="width: 100%;" onclick="showShiftGenerator()">📅 Generate New Shift</button>
@@ -220,9 +224,9 @@
             <button class="btn btn-secondary" onclick="closePersonDetail()">✕ Close</button>
           </div>
         </div>
-        <label class="mb-4">Notes</label>
+        <label>Notes</label>
         <textarea id="person-notes" rows="4"></textarea>
-        <label class="mb-4">Job Restrictions (select jobs they cannot do)</label>
+        <label>Job Restrictions (select jobs they cannot do)</label>
         <div id="restrictions-list" style="max-height: 400px; overflow-y: auto; background: #f9fafb; padding: 12px; border-radius: 8px;"></div>
         <button class="btn btn-primary mt-4" style="width: 100%;" onclick="savePersonDetails()">💾 Save Details</button>
       </div>
@@ -257,19 +261,20 @@
           <button class="btn btn-secondary" onclick="setTaskView('history')">History</button>
           <button class="btn btn-secondary" onclick="setTaskView('templates')">Daily Templates</button>
         </div>
-        <div class="flex">
-          <button class="btn btn-danger" onclick="clearTodayTasks()" id="clear-today-btn">🗑️ Clear Today</button>
-          <button class="btn btn-success" onclick="toggleTaskForm()">+ New Task</button>
-        </div>
+        <button class="btn btn-success" onclick="toggleTaskForm()">+ New Task</button>
       </div>
 
       <div id="task-form" class="hidden" style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
         <h3 class="mb-4">Create New Task</h3>
+        <label>Task Title</label>
         <input type="text" id="task-title" placeholder="Task title...">
+        <label>Description</label>
         <textarea id="task-description" rows="3" placeholder="Description..."></textarea>
+        <label>Assign To</label>
         <select id="task-assignee">
           <option value="">Assign to...</option>
         </select>
+        <label>Category</label>
         <select id="task-category">
           <option value="opening">Opening</option>
           <option value="closing">Closing</option>
@@ -448,20 +453,6 @@
         renderStaffList();
         updateTaskAssigneeOptions();
         input.value = '';
-      }
-    }
-
-    function clearAllStaff() {
-      if (staff.length === 0) {
-        alert('No staff to delete!');
-        return;
-      }
-      
-      if (confirm(`Are you sure you want to delete ALL ${staff.length} staff members? This cannot be undone!`)) {
-        staff = [];
-        saveStaff();
-        renderStaffList();
-        updateTaskAssigneeOptions();
       }
     }
 
@@ -822,38 +813,14 @@
       toggleTaskForm();
     }
 
-    function clearTodayTasks() {
-      const today = getDateKey(new Date());
-      const todayTasks = tasks.filter(t => getDateKey(new Date(t.createdAt)) === today && t.status === 'pending');
-      
-      if (todayTasks.length === 0) {
-        alert('No pending tasks to delete today!');
-        return;
-      }
-      
-      if (confirm(`Delete all ${todayTasks.length} pending tasks for today? This cannot be undone!`)) {
-        tasks = tasks.filter(t => {
-          const taskDate = getDateKey(new Date(t.createdAt));
-          return !(taskDate === today && t.status === 'pending');
-        });
-        saveTasks();
-        renderTasks();
-      }
-    }
-
     function setTaskView(view) {
       currentTaskView = view;
       const buttons = document.querySelectorAll('#tasks-tab .flex .btn');
       buttons.forEach(btn => btn.className = 'btn btn-secondary');
       event.target.className = 'btn btn-primary';
       
-      // Show/hide clear button based on view
-      const clearBtn = document.getElementById('clear-today-btn');
       if (view === 'today') {
-        clearBtn.style.display = 'block';
         currentHistoryDate = new Date();
-      } else {
-        clearBtn.style.display = 'none';
       }
       
       renderTasks();
@@ -900,7 +867,7 @@
         const pendingTasks = tasks.filter(t => {
           const taskDate = getDateKey(new Date(t.createdAt));
           const today = getDateKey(new Date());
-          return t.status !== 'completed' && taskDate === today;
+          return t.status === 'pending' && taskDate === today;
         });
         const categories = ['opening', 'cleaning', 'stock', 'compliance', 'closing', 'other'];
         
@@ -1118,10 +1085,12 @@
               </div>
             </div>
             <div id="complete-form-${task.id}" class="hidden" style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 12px;">
+              <label>Who completed this?</label>
               <select id="completedBy-${task.id}" style="margin-bottom: 8px;">
-                <option value="">Who completed this?</option>
+                <option value="">Select person...</option>
                 ${staff.map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
               </select>
+              <label>Notes (optional)</label>
               <textarea id="notes-${task.id}" placeholder="Notes (optional)..." rows="3"></textarea>
               <div class="flex">
                 <button class="btn btn-success" onclick="completeTask(${task.id})">Mark Complete</button>
@@ -1129,6 +1098,7 @@
               </div>
             </div>
             <div id="flag-form-${task.id}" class="hidden" style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 12px;">
+              <label>Describe the issue</label>
               <textarea id="flag-issue-${task.id}" placeholder="Describe the issue..." rows="3"></textarea>
               <div class="flex">
                 <button class="btn btn-warning" onclick="flagTask(${task.id})">Flag Issue</button>
@@ -1171,10 +1141,19 @@
 
     function completeTask(id) {
       const completedBy = document.getElementById(`completedBy-${id}`).value;
-      if (!completedBy) return;
+      if (!completedBy) {
+        alert('Please select who completed this task');
+        return;
+      }
       
       const notes = document.getElementById(`notes-${id}`).value;
       const task = tasks.find(t => t.id === id);
+      
+      if (!task) {
+        alert('Error: Task not found');
+        return;
+      }
+      
       task.status = 'completed';
       task.completedBy = completedBy;
       task.completedAt = new Date().toISOString();
@@ -1186,9 +1165,18 @@
 
     function flagTask(id) {
       const issue = document.getElementById(`flag-issue-${id}`).value.trim();
-      if (!issue) return;
+      if (!issue) {
+        alert('Please describe the issue');
+        return;
+      }
       
       const task = tasks.find(t => t.id === id);
+      
+      if (!task) {
+        alert('Error: Task not found');
+        return;
+      }
+      
       task.status = 'flagged';
       task.flaggedIssue = issue;
       task.flaggedAt = new Date().toISOString();
