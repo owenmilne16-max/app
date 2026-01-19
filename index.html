@@ -87,6 +87,13 @@
       margin-bottom: 8px;
       font-size: 0.95rem;
     }
+    label input[type="checkbox"] {
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    label span {
+      line-height: 1.5;
+    }
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #4f46e5;
@@ -293,10 +300,6 @@
           </div>
         </div>
 
-        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <input type="checkbox" id="task-photo">
-          <span>Requires photo proof</span>
-        </label>
         <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
           <input type="checkbox" id="task-daily">
           <span style="font-weight: 600; color: #4f46e5;">Repeat daily (auto-creates every day)</span>
@@ -771,7 +774,6 @@
         description: document.getElementById('task-description').value,
         assignedTo: document.getElementById('task-assignee').value,
         category: document.getElementById('task-category').value,
-        requiresPhoto: document.getElementById('task-photo').checked,
         subtasks: currentSubtasks.length > 0 ? [...currentSubtasks] : null,
         status: 'pending',
         createdAt: new Date().toISOString()
@@ -807,7 +809,6 @@
       document.getElementById('task-title').value = '';
       document.getElementById('task-description').value = '';
       document.getElementById('task-assignee').value = '';
-      document.getElementById('task-photo').checked = false;
       document.getElementById('task-daily').checked = false;
       currentSubtasks = [];
       toggleTaskForm();
@@ -979,7 +980,6 @@
                   <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: #6b7280;">
                     ${template.assignedTo ? `<span>Assigned: ${template.assignedTo}</span>` : ''}
                     <span style="text-transform: capitalize;">Category: ${template.category}</span>
-                    ${template.requiresPhoto ? '<span style="color: #f59e0b;">📷 Photo required</span>' : ''}
                     ${template.subtasks ? `<span>📋 ${template.subtasks.length} subtasks</span>` : ''}
                   </div>
                   ${template.subtasks && template.subtasks.length > 0 ? `
@@ -1058,7 +1058,6 @@
               <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: #6b7280;">
                 ${task.assignedTo ? `<span>Assigned: ${task.assignedTo}</span>` : ''}
                 <span style="text-transform: capitalize;">Category: ${task.category}</span>
-                ${task.requiresPhoto ? '<span style="color: #f59e0b;">📷 Photo required</span>' : ''}
               </div>
               ${subtasksHtml}
             </div>
