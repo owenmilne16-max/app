@@ -87,6 +87,18 @@
       margin-bottom: 8px;
       font-size: 0.95rem;
     }
+    label.checkbox-label {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 8px;
+      font-weight: normal;
+      cursor: pointer;
+      width: auto !important;
+    }
+    label.checkbox-label input[type="checkbox"] {
+      margin: 0;
+      width: auto;
+    }
     label input[type="checkbox"] {
       margin-right: 8px;
       flex-shrink: 0;
@@ -300,8 +312,8 @@
           </div>
         </div>
 
-        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <input type="checkbox" id="task-daily">
+        <label style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
+          <input type="checkbox" id="task-daily" style="margin: 0;">
           <span style="font-weight: 600; color: #4f46e5;">Repeat daily (auto-creates every day)</span>
         </label>
         <div class="flex">
@@ -519,8 +531,8 @@
       restrictionsList.innerHTML = allJobs.map(job => `
         <label style="display: flex; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px; background: white; border-radius: 4px; cursor: pointer;">
           <input type="checkbox" ${currentPerson.restrictions?.includes(job.name) ? 'checked' : ''} 
-                 onchange="toggleRestriction('${job.name}')">
-          <span style="font-size: 0.9rem;">${job.name}</span>
+                 onchange="toggleRestriction('${job.name}')" style="margin: 0; width: auto; flex-shrink: 0;">
+          <span style="font-size: 0.9rem; font-weight: normal; flex: 1;">${job.name}</span>
         </label>
       `).join('');
     }
@@ -559,12 +571,11 @@
     function renderShiftStaffList() {
       const container = document.getElementById('shift-staff-list');
       container.innerHTML = staff.map(person => `
-        <label class="staff-card">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <input type="checkbox" onchange="toggleStaffForShift('${person.name}')" 
-                   ${selectedForShift.includes(person.name) ? 'checked' : ''}>
-            <span class="font-bold">${person.name}</span>
-          </div>
+        <label class="staff-card" style="display: flex; align-items: center; cursor: pointer;">
+          <input type="checkbox" onchange="toggleStaffForShift('${person.name}')" 
+                 ${selectedForShift.includes(person.name) ? 'checked' : ''}
+                 style="margin: 0; margin-right: 8px; flex-shrink: 0;">
+          <span class="font-bold">${person.name}</span>
         </label>
       `).join('');
       document.getElementById('selected-count').textContent = selectedForShift.length;
@@ -750,7 +761,7 @@
       }
       container.innerHTML = currentSubtasks.map((st, idx) => `
         <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; margin-bottom: 4px;">
-          <input type="checkbox" disabled checked style="pointer-events: none;">
+          <input type="checkbox" disabled checked style="pointer-events: none; margin: 0; flex-shrink: 0;">
           <span style="flex: 1;">${st.text}</span>
           <button class="delete-btn-small" onclick="event.preventDefault(); removeSubtask(${idx})">✕</button>
         </div>
@@ -1039,7 +1050,7 @@
               <label style="display: flex; align-items: flex-start; gap: 8px; padding: 6px; cursor: ${isHistory ? 'default' : 'pointer'}; user-select: none; margin-bottom: 4px;">
                 <input type="checkbox" ${st.completed ? 'checked' : ''} 
                        ${isHistory ? 'disabled' : `onchange="toggleSubtask(${task.id}, ${idx})"`}
-                       style="margin-top: 2px; min-width: 16px; cursor: ${isHistory ? 'default' : 'pointer'};">
+                       style="margin: 4px 0 0 0; min-width: 16px; flex-shrink: 0; cursor: ${isHistory ? 'default' : 'pointer'};">
                 <span style="font-size: 0.9rem; line-height: 1.4; flex: 1; word-wrap: break-word; ${st.completed ? 'text-decoration: line-through; color: #9ca3af;' : 'color: #374151;'}">${st.text}</span>
               </label>
             `).join('')}
