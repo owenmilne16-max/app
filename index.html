@@ -3,637 +3,1207 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shift Manager</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Work Manager</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 {
+      color: #312e81;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 0;
+      background: white;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+    }
+    .tab {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      background: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #6b7280;
+      transition: all 0.3s;
+    }
+    .tab.active {
+      background: #4f46e5;
+      color: white;
+      border-bottom: 3px solid #4f46e5;
+    }
+    .tab:hover:not(.active) { background: #f3f4f6; }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-secondary:hover { background: #d1d5db; }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .staff-card {
+      padding: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+    .staff-card:hover { background: #eef2ff; }
+    .task-card {
+      padding: 16px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .task-card.completed { background: #f0fdf4; border-color: #86efac; }
+    .task-card.flagged { background: #fef2f2; border-color: #fca5a5; }
+    .flex { display: flex; gap: 12px; align-items: center; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .mb-4 { margin-bottom: 16px; }
+    .mt-4 { margin-top: 16px; }
+    .text-sm { font-size: 0.875rem; color: #6b7280; }
+    .font-bold { font-weight: 700; }
+    .hidden { display: none; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+    }
+    th {
+      background: #4f46e5;
+      color: white;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: #f9fafb; }
+    .extra-staff { background: #fef3c7 !important; }
+    .delete-btn {
+      background: #ef4444;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .delete-btn:hover { 
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+    .delete-btn-small {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.3s;
+      font-size: 1.1rem;
+    }
+    .delete-btn-small:hover { background: #fee2e2; }
+    .category-header {
+      font-weight: 600;
+      color: #374151;
+      margin: 20px 0 12px 0;
+      text-transform: capitalize;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+    .alert-warning {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    
-    // Lucide icons as inline SVG components
-    const Plus = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-    );
-    
-    const X = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    );
-    
-    const Users = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="9" cy="7" r="4"></circle>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-      </svg>
-    );
-    
-    const Calendar = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
-      </svg>
-    );
-    
-    const Save = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-        <polyline points="7 3 7 8 15 8"></polyline>
-      </svg>
-    );
-    
-    const UserPlus = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="8.5" cy="7" r="4"></circle>
-        <line x1="20" y1="8" x2="20" y2="14"></line>
-        <line x1="23" y1="11" x2="17" y2="11"></line>
-      </svg>
-    );
+  <div class="container">
+    <h1>
+      <span>📅</span>
+      Work Manager
+    </h1>
 
-    const ShiftManager = () => {
-      const [staff, setStaff] = useState([]);
-      const [selectedPerson, setSelectedPerson] = useState(null);
-      const [newName, setNewName] = useState('');
-      const [notes, setNotes] = useState('');
-      const [restrictions, setRestrictions] = useState([]);
-      const [showShiftGen, setShowShiftGen] = useState(false);
-      const [selectedForShift, setSelectedForShift] = useState([]);
-      const [currentShift, setCurrentShift] = useState(null);
-      const [addingNewInShift, setAddingNewInShift] = useState(false);
-      const [newShiftName, setNewShiftName] = useState('');
+    <div class="card" style="padding: 0; margin-bottom: 0;">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('shifts')">Shift Planning</button>
+        <button class="tab" onclick="switchTab('tasks')">Tasks & Checklists</button>
+      </div>
+    </div>
 
-      const allJobs = [
-        { name: "HT Cart / screen", break: "Co ord with other member on cart", group: "", role: "HT Cart / screen", closedown: "Floor close + linen" },
-        { name: "HT Cart / screen 2", break: "Co ord with other member on cart", group: "", role: "HT Cart / screen", closedown: "Floor close + linen" },
-        { name: "HT Make + 10", break: "30", group: "2nd half", role: "HT Make + 10", closedown: "Bins" },
-        { name: "HT Make + 9", break: "30", group: "2nd half", role: "HT Make + 9", closedown: "Bins" },
-        { name: "Bar/Glassrun 10", break: "1", group: "", role: "10", closedown: "Bar/Glassrun" },
-        { name: "Stock + Cardboard 9", break: "2", group: "", role: "9", closedown: "Stock + Cardboard" },
-        { name: "HT give out + 8", break: "1", group: "", role: "8 + HT give out", closedown: "Bins" },
-        { name: "Bar/Glassrun 8", break: "2", group: "", role: "8", closedown: "Bar/Glassrun" },
-        { name: "Stock + Cardboard 7", break: "1", group: "", role: "7", closedown: "Stock + Cardboard" },
-        { name: "Bar/Glassrun 7", break: "2", group: "", role: "7", closedown: "Bar/Glassrun" },
-        { name: "Stock + Cardboard 6", break: "1", group: "", role: "6", closedown: "Stock + Cardboard" },
-        { name: "Bar/Glassrun 6", break: "2", group: "", role: "6", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 5", break: "1", group: "", role: "5", closedown: "Bar/Glassrun" },
-        { name: "Stock + Cardboard 5", break: "2", group: "", role: "5", closedown: "Stock + Cardboard" },
-        { name: "Bar/Glassrun 4", break: "1", group: "", role: "4", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 4-2", break: "2", group: "", role: "4", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 3", break: "1", group: "", role: "3", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 3-2", break: "2", group: "", role: "3", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 2", break: "1", group: "", role: "2", closedown: "Bar/Glassrun" },
-        { name: "Bar/Glassrun 2-2", break: "2", group: "", role: "2", closedown: "Bar/Glassrun" },
-        { name: "Glasswash close 1", break: "1", group: "", role: "1", closedown: "Glasswash close" },
-        { name: "Glasswash close 1-2", break: "2", group: "", role: "1", closedown: "Glasswash close" }
-      ];
+    <!-- SHIFTS TAB -->
+    <div id="shifts-tab" class="card">
+      <div id="shifts-main-view">
+        <div class="flex mb-4">
+          <input type="text" id="new-staff-name" placeholder="Add new staff member..." style="flex: 1;">
+          <button class="btn btn-primary" onclick="addStaff()">+ Add Staff</button>
+        </div>
 
-      useEffect(() => {
-        loadData();
-      }, []);
+        <div class="flex-between mb-4">
+          <h2 style="margin: 0;">Staff List (<span id="staff-count">0</span>)</h2>
+          <button class="btn btn-danger" onclick="clearAllStaff()" style="font-size: 0.9rem;">🗑️ Clear All Staff</button>
+        </div>
+        <div class="grid" id="staff-list"></div>
 
-      const loadData = () => {
-        try {
-          const staffData = localStorage.getItem('staff-list');
-          if (staffData) {
-            setStaff(JSON.parse(staffData));
-          }
-        } catch (error) {
-          console.log('No existing staff data');
-        }
-      };
+        <button class="btn btn-success" style="width: 100%;" onclick="showShiftGenerator()">📅 Generate New Shift</button>
+      </div>
 
-      const saveData = (newStaff) => {
-        try {
-          localStorage.setItem('staff-list', JSON.stringify(newStaff));
-        } catch (error) {
-          console.error('Error saving data:', error);
-        }
-      };
-
-      const addStaff = () => {
-        if (newName.trim()) {
-          const newStaff = [...staff, {
-            name: newName.trim(),
-            notes: '',
-            restrictions: [],
-            jobHistory: []
-          }].sort((a, b) => a.name.localeCompare(b.name));
-          setStaff(newStaff);
-          saveData(newStaff);
-          setNewName('');
-        }
-      };
-
-      const selectPerson = (person) => {
-        setSelectedPerson(person);
-        setNotes(person.notes || '');
-        setRestrictions(person.restrictions || []);
-      };
-
-      const savePersonDetails = () => {
-        const updatedStaff = staff.map(s => 
-          s.name === selectedPerson.name 
-            ? { ...s, notes, restrictions }
-            : s
-        );
-        setStaff(updatedStaff);
-        saveData(updatedStaff);
-        setSelectedPerson(null);
-      };
-
-      const toggleRestriction = (job) => {
-        setRestrictions(prev => 
-          prev.includes(job)
-            ? prev.filter(j => j !== job)
-            : [...prev, job]
-        );
-      };
-
-      const generateShift = () => {
-        const available = selectedForShift.map(name => 
-          staff.find(s => s.name === name)
-        );
-
-        const assignments = [];
-        const usedPeople = new Set();
-
-        const jobsByRestriction = [...allJobs].sort((a, b) => {
-          const aCount = available.filter(p => !p.restrictions.includes(a.name)).length;
-          const bCount = available.filter(p => !p.restrictions.includes(b.name)).length;
-          return aCount - bCount;
-        });
-
-        for (const job of jobsByRestriction) {
-          const eligible = available.filter(person => 
-            !person.restrictions.includes(job.name) && !usedPeople.has(person.name)
-          );
-
-          if (eligible.length === 0) continue;
-
-          const sorted = eligible.sort((a, b) => {
-            const aLastIndex = a.jobHistory.lastIndexOf(job.name);
-            const bLastIndex = b.jobHistory.lastIndexOf(job.name);
-            return aLastIndex - bLastIndex;
-          });
-
-          const assigned = sorted[0];
-          assignments.push({
-            person: assigned.name,
-            break: job.break,
-            group: job.group,
-            role: job.role,
-            closedown: job.closedown
-          });
-          usedPeople.add(assigned.name);
-        }
-
-        const unassigned = available
-          .filter(person => !usedPeople.has(person.name))
-          .map(person => person.name);
-
-        const updatedStaff = staff.map(person => {
-          const assignment = assignments.find(a => a.person === person.name);
-          if (assignment) {
-            const jobName = allJobs.find(j => 
-              j.break === assignment.break && 
-              j.role === assignment.role && 
-              j.closedown === assignment.closedown
-            )?.name;
-            return {
-              ...person,
-              jobHistory: [...(person.jobHistory || []), jobName]
-            };
-          }
-          return person;
-        });
-        setStaff(updatedStaff);
-        saveData(updatedStaff);
-
-        setCurrentShift({
-          assigned: assignments,
-          unassigned: unassigned,
-          manualAssignments: {}
-        });
-      };
-
-      const addNewStaffInShift = () => {
-        if (newShiftName.trim()) {
-          const newStaff = [...staff, {
-            name: newShiftName.trim(),
-            notes: '',
-            restrictions: [],
-            jobHistory: []
-          }].sort((a, b) => a.name.localeCompare(b.name));
-          setStaff(newStaff);
-          saveData(newStaff);
-          setSelectedForShift([...selectedForShift, newShiftName.trim()]);
-          setNewShiftName('');
-          setAddingNewInShift(false);
-        }
-      };
-
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="text-4xl font-bold text-indigo-900 mb-8 flex items-center gap-3">
-              <Calendar className="w-10 h-10" />
-              Shift Manager
-            </h1>
-
-            {!showShiftGen && !selectedPerson && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex gap-4 mb-6">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addStaff()}
-                    placeholder="Add new staff member..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  <button
-                    onClick={addStaff}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Add Staff
-                  </button>
-                </div>
-
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <Users className="w-6 h-6" />
-                    Staff List ({staff.length})
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {staff.map(person => (
-                      <div
-                        key={person.name}
-                        className="p-4 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors border border-gray-200 flex justify-between items-start"
-                      >
-                        <div 
-                          onClick={() => selectPerson(person)}
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="font-medium text-gray-900">{person.name}</div>
-                          {person.restrictions?.length > 0 && (
-                            <div className="text-sm text-gray-600 mt-1">
-                              {person.restrictions.length} restriction(s)
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Delete ${person.name} from staff list?`)) {
-                              const newStaff = staff.filter(s => s.name !== person.name);
-                              setStaff(newStaff);
-                              saveData(newStaff);
-                            }
-                          }}
-                          className="p-1 hover:bg-red-100 rounded text-red-600"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowShiftGen(true)}
-                  className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold flex items-center justify-center gap-2"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Generate New Shift
-                </button>
-              </div>
-            )}
-
-            {selectedPerson && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedPerson.name}</h2>
-                  <button
-                    onClick={() => setSelectedPerson(null)}
-                    className="p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 h-24"
-                    placeholder="Add notes about this person..."
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Job Restrictions (select jobs they cannot do)
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-96 overflow-y-auto p-2 bg-gray-50 rounded-lg">
-                    {allJobs.map(job => (
-                      <label key={job.name} className="flex items-center gap-2 p-2 hover:bg-white rounded cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={restrictions.includes(job.name)}
-                          onChange={() => toggleRestriction(job.name)}
-                          className="w-4 h-4 text-indigo-600"
-                        />
-                        <span className="text-sm text-gray-700">{job.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={savePersonDetails}
-                  className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold flex items-center justify-center gap-2"
-                >
-                  <Save className="w-5 h-5" />
-                  Save Details
-                </button>
-              </div>
-            )}
-
-            {showShiftGen && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Generate Shift</h2>
-                  <button
-                    onClick={() => {
-                      setShowShiftGen(false);
-                      setSelectedForShift([]);
-                      setCurrentShift(null);
-                    }}
-                    className="p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                {!currentShift && (
-                  <>
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                        Select Staff for This Shift
-                      </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-                        {staff.map(person => (
-                          <label
-                            key={person.name}
-                            className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedForShift.includes(person.name)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedForShift([...selectedForShift, person.name]);
-                                } else {
-                                  setSelectedForShift(selectedForShift.filter(n => n !== person.name));
-                                }
-                              }}
-                              className="w-4 h-4 text-indigo-600"
-                            />
-                            <span className="text-sm font-medium">{person.name}</span>
-                          </label>
-                        ))}
-                      </div>
-
-                      {addingNewInShift ? (
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={newShiftName}
-                            onChange={(e) => setNewShiftName(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && addNewStaffInShift()}
-                            placeholder="New staff name..."
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                            autoFocus
-                          />
-                          <button
-                            onClick={addNewStaffInShift}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                          >
-                            Add
-                          </button>
-                          <button
-                            onClick={() => {
-                              setAddingNewInShift(false);
-                              setNewShiftName('');
-                            }}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setAddingNewInShift(true)}
-                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center gap-2"
-                        >
-                          <UserPlus className="w-4 h-4" />
-                          Add New Staff Member
-                        </button>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={generateShift}
-                      disabled={selectedForShift.length === 0}
-                      className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed"
-                    >
-                      Generate Shift ({selectedForShift.length} selected)
-                    </button>
-                  </>
-                )}
-
-                {currentShift && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Generated Shift</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse">
-                        <thead>
-                          <tr className="bg-indigo-600 text-white">
-                            <th className="border border-indigo-700 px-4 py-2 text-left">Name</th>
-                            <th className="border border-indigo-700 px-4 py-2 text-left">Break Group</th>
-                            <th className="border border-indigo-700 px-4 py-2 text-left">Role / Till</th>
-                            <th className="border border-indigo-700 px-4 py-2 text-left">Closedown Task</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentShift.assigned.map((assignment, idx) => (
-                            <tr key={idx} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                              <td className="border border-gray-300 px-4 py-2">
-                                <select
-                                  value={assignment.person}
-                                  onChange={(e) => {
-                                    const newPerson = e.target.value;
-                                    const oldPerson = assignment.person;
-                                    
-                                    const otherIdx = currentShift.assigned.findIndex(
-                                      (a, i) => i !== idx && a.person === newPerson
-                                    );
-                                    
-                                    const updated = {...currentShift};
-                                    updated.assigned = [...updated.assigned];
-                                    
-                                    if (otherIdx !== -1) {
-                                      updated.assigned[idx] = {...updated.assigned[idx], person: newPerson};
-                                      updated.assigned[otherIdx] = {...updated.assigned[otherIdx], person: oldPerson};
-                                    } else {
-                                      updated.assigned[idx] = {...updated.assigned[idx], person: newPerson};
-                                    }
-                                    
-                                    setCurrentShift(updated);
-                                  }}
-                                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium bg-white"
-                                >
-                                  {selectedForShift.map(name => (
-                                    <option key={name} value={name}>{name}</option>
-                                  ))}
-                                </select>
-                              </td>
-                              <td className="border border-gray-300 px-4 py-2">
-                                {assignment.group ? `${assignment.break} ${assignment.group}` : assignment.break}
-                              </td>
-                              <td className="border border-gray-300 px-4 py-2">{assignment.role}</td>
-                              <td className="border border-gray-300 px-4 py-2">{assignment.closedown}</td>
-                            </tr>
-                          ))}
-                          {currentShift.unassigned.length > 0 && (
-                            <>
-                              <tr>
-                                <td colSpan="4" className="border border-gray-300 px-4 py-3 bg-yellow-50 font-semibold text-gray-700">
-                                  Extra Staff (Assign Manually)
-                                </td>
-                              </tr>
-                              {currentShift.unassigned.map((person, idx) => (
-                                <tr key={`unassigned-${idx}`} className="bg-yellow-50">
-                                  <td className="border border-gray-300 px-4 py-2">
-                                    <select
-                                      value={person}
-                                      onChange={(e) => {
-                                        const newPerson = e.target.value;
-                                        const oldPerson = person;
-                                        
-                                        const assignedIdx = currentShift.assigned.findIndex(
-                                          a => a.person === newPerson
-                                        );
-                                        
-                                        const updated = {...currentShift};
-                                        updated.assigned = [...updated.assigned];
-                                        updated.unassigned = [...updated.unassigned];
-                                        
-                                        if (assignedIdx !== -1) {
-                                          updated.assigned[assignedIdx] = {...updated.assigned[assignedIdx], person: oldPerson};
-                                          updated.unassigned[idx] = newPerson;
-                                        } else {
-                                          updated.unassigned[idx] = newPerson;
-                                        }
-                                        
-                                        setCurrentShift(updated);
-                                      }}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium bg-white"
-                                    >
-                                      {selectedForShift.map(name => (
-                                        <option key={name} value={name}>{name}</option>
-                                      ))}
-                                    </select>
-                                  </td>
-                                  <td className="border border-gray-300 px-4 py-2">
-                                    <input
-                                      type="text"
-                                      placeholder="Break group..."
-                                      value={currentShift.manualAssignments?.[person]?.breakGroup || ''}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                      onChange={(e) => {
-                                        const updated = {...currentShift};
-                                        if (!updated.manualAssignments) updated.manualAssignments = {};
-                                        if (!updated.manualAssignments[person]) updated.manualAssignments[person] = {};
-                                        updated.manualAssignments[person].breakGroup = e.target.value;
-                                        setCurrentShift(updated);
-                                      }}
-                                    />
-                                  </td>
-                                  <td className="border border-gray-300 px-4 py-2">
-                                    <input
-                                      type="text"
-                                      placeholder="Role..."
-                                      value={currentShift.manualAssignments?.[person]?.role || ''}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                      onChange={(e) => {
-                                        const updated = {...currentShift};
-                                        if (!updated.manualAssignments) updated.manualAssignments = {};
-                                        if (!updated.manualAssignments[person]) updated.manualAssignments[person] = {};
-                                        updated.manualAssignments[person].role = e.target.value;
-                                        setCurrentShift(updated);
-                                      }}
-                                    />
-                                  </td>
-                                  <td className="border border-gray-300 px-4 py-2">
-                                    <input
-                                      type="text"
-                                      placeholder="Closedown task..."
-                                      value={currentShift.manualAssignments?.[person]?.closedown || ''}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                      onChange={(e) => {
-                                        const updated = {...currentShift};
-                                        if (!updated.manualAssignments) updated.manualAssignments = {};
-                                        if (!updated.manualAssignments[person]) updated.manualAssignments[person] = {};
-                                        updated.manualAssignments[person].closedown = e.target.value;
-                                        setCurrentShift(updated);
-                                      }}
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                            </>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowShiftGen(false);
-                        setSelectedForShift([]);
-                        setCurrentShift(null);
-                      }}
-                      className="mt-6 w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold"
-                    >
-                      Done
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+      <div id="person-detail-view" class="hidden">
+        <div class="flex-between mb-4">
+          <h2 id="person-name"></h2>
+          <div class="flex">
+            <button class="btn btn-danger" onclick="deleteCurrentPerson()">🗑️ Delete Staff</button>
+            <button class="btn btn-secondary" onclick="closePersonDetail()">✕ Close</button>
           </div>
         </div>
-      );
-    };
+        <label class="mb-4">Notes</label>
+        <textarea id="person-notes" rows="4"></textarea>
+        <label class="mb-4">Job Restrictions (select jobs they cannot do)</label>
+        <div id="restrictions-list" style="max-height: 400px; overflow-y: auto; background: #f9fafb; padding: 12px; border-radius: 8px;"></div>
+        <button class="btn btn-primary mt-4" style="width: 100%;" onclick="savePersonDetails()">💾 Save Details</button>
+      </div>
 
-    ReactDOM.render(<ShiftManager />, document.getElementById('root'));
+      <div id="shift-gen-view" class="hidden">
+        <div class="flex-between mb-4">
+          <h2>Generate Shift</h2>
+          <button class="btn btn-secondary" onclick="closeShiftGen()">✕ Close</button>
+        </div>
+
+        <div id="shift-selection">
+          <h3 class="mb-4">Select Staff for This Shift</h3>
+          <div class="grid" id="shift-staff-list"></div>
+          <button class="btn btn-success mt-4" style="width: 100%;" onclick="generateShift()">Generate Shift (<span id="selected-count">0</span> selected)</button>
+        </div>
+
+        <div id="shift-result" class="hidden">
+          <h3>Generated Shift</h3>
+          <div style="overflow-x: auto;">
+            <table id="shift-table"></table>
+          </div>
+          <button class="btn btn-primary mt-4" style="width: 100%;" onclick="closeShiftGen()">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS TAB -->
+    <div id="tasks-tab" class="card hidden">
+      <div class="flex-between mb-4">
+        <div class="flex">
+          <button class="btn btn-primary" onclick="setTaskView('today')">Today's Tasks</button>
+          <button class="btn btn-secondary" onclick="setTaskView('history')">History</button>
+          <button class="btn btn-secondary" onclick="setTaskView('templates')">Daily Templates</button>
+        </div>
+        <div class="flex">
+          <button class="btn btn-danger" onclick="clearTodayTasks()" id="clear-today-btn">🗑️ Clear Today</button>
+          <button class="btn btn-success" onclick="toggleTaskForm()">+ New Task</button>
+        </div>
+      </div>
+
+      <div id="task-form" class="hidden" style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 class="mb-4">Create New Task</h3>
+        <input type="text" id="task-title" placeholder="Task title...">
+        <textarea id="task-description" rows="3" placeholder="Description..."></textarea>
+        <select id="task-assignee">
+          <option value="">Assign to...</option>
+        </select>
+        <select id="task-category">
+          <option value="opening">Opening</option>
+          <option value="closing">Closing</option>
+          <option value="cleaning">Cleaning</option>
+          <option value="stock">Stock Check</option>
+          <option value="compliance">Compliance</option>
+          <option value="other">Other</option>
+        </select>
+        
+        <div style="margin-bottom: 12px;">
+          <label style="font-weight: 600; margin-bottom: 8px; display: block;">Subtasks (Checklist)</label>
+          <div id="subtasks-list"></div>
+          <div class="flex" style="margin-top: 8px;">
+            <input type="text" id="new-subtask" placeholder="Add subtask..." style="flex: 1; margin-bottom: 0;">
+            <button class="btn btn-secondary" onclick="addSubtask()" style="margin-left: 8px;">+ Add</button>
+          </div>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <input type="checkbox" id="task-photo">
+          <span>Requires photo proof</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <input type="checkbox" id="task-daily">
+          <span style="font-weight: 600; color: #4f46e5;">Repeat daily (auto-creates every day)</span>
+        </label>
+        <div class="flex">
+          <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+          <button class="btn btn-secondary" onclick="toggleTaskForm()">Cancel</button>
+        </div>
+      </div>
+
+      <div id="tasks-container"></div>
+
+      <!-- Daily Log (shown in today view) -->
+      <div id="daily-log" class="hidden" style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 16px; margin-top: 20px;">
+        <h3 class="mb-4" style="color: #166534;">Daily Log</h3>
+        <label style="font-weight: 600; display: block; margin-bottom: 4px;">Stock List</label>
+        <textarea id="log-stock" rows="3" placeholder="Items running low, stock notes..." style="margin-bottom: 12px;"></textarea>
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 4px;">How did the shift go? (Rate 1-10)</label>
+        <input type="number" id="log-rating" min="1" max="10" placeholder="1-10" style="margin-bottom: 12px;">
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 4px;">Other Notes</label>
+        <textarea id="log-notes" rows="4" placeholder="Issues, highlights, things to remember..."></textarea>
+        
+        <button class="btn btn-primary mt-4" onclick="saveDailyLog()">💾 Save Daily Log</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data storage
+    let staff = [];
+    let tasks = [];
+    let currentPerson = null;
+    let selectedForShift = [];
+    let currentShift = null;
+    let dailyTemplates = [];
+    let dailyLogs = {};
+    let currentHistoryDate = new Date();
+
+    const allJobs = [
+      { name: "HT Cart / screen", break: "Co ord with other member on cart", group: "", role: "HT Cart / screen", closedown: "Floor close + linen" },
+      { name: "HT Cart / screen 2", break: "Co ord with other member on cart", group: "", role: "HT Cart / screen", closedown: "Floor close + linen" },
+      { name: "HT Make + 10", break: "30", group: "2nd half", role: "HT Make + 10", closedown: "Bins" },
+      { name: "HT Make + 9", break: "30", group: "2nd half", role: "HT Make + 9", closedown: "Bins" },
+      { name: "Bar/Glassrun 10", break: "1", group: "", role: "10", closedown: "Bar/Glassrun" },
+      { name: "Stock + Cardboard 9", break: "2", group: "", role: "9", closedown: "Stock + Cardboard" },
+      { name: "HT give out + 8", break: "1", group: "", role: "8 + HT give out", closedown: "Bins" },
+      { name: "Bar/Glassrun 8", break: "2", group: "", role: "8", closedown: "Bar/Glassrun" },
+      { name: "Stock + Cardboard 7", break: "1", group: "", role: "7", closedown: "Stock + Cardboard" },
+      { name: "Bar/Glassrun 7", break: "2", group: "", role: "7", closedown: "Bar/Glassrun" },
+      { name: "Stock + Cardboard 6", break: "1", group: "", role: "6", closedown: "Stock + Cardboard" },
+      { name: "Bar/Glassrun 6", break: "2", group: "", role: "6", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 5", break: "1", group: "", role: "5", closedown: "Bar/Glassrun" },
+      { name: "Stock + Cardboard 5", break: "2", group: "", role: "5", closedown: "Stock + Cardboard" },
+      { name: "Bar/Glassrun 4", break: "1", group: "", role: "4", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 4-2", break: "2", group: "", role: "4", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 3", break: "1", group: "", role: "3", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 3-2", break: "2", group: "", role: "3", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 2", break: "1", group: "", role: "2", closedown: "Bar/Glassrun" },
+      { name: "Bar/Glassrun 2-2", break: "2", group: "", role: "2", closedown: "Bar/Glassrun" },
+      { name: "Glasswash close 1", break: "1", group: "", role: "1", closedown: "Glasswash close" },
+      { name: "Glasswash close 1-2", break: "2", group: "", role: "1", closedown: "Glasswash close" }
+    ];
+
+    // Load data on startup
+    function loadData() {
+      const staffData = localStorage.getItem('staff-list');
+      const tasksData = localStorage.getItem('tasks-list');
+      const templatesData = localStorage.getItem('daily-templates');
+      const logsData = localStorage.getItem('daily-logs');
+      if (staffData) staff = JSON.parse(staffData);
+      if (tasksData) tasks = JSON.parse(tasksData);
+      if (templatesData) dailyTemplates = JSON.parse(templatesData);
+      if (logsData) dailyLogs = JSON.parse(logsData);
+      generateDailyTasks();
+      renderStaffList();
+      renderTasks();
+      updateTaskAssigneeOptions();
+    }
+
+    function saveStaff() {
+      localStorage.setItem('staff-list', JSON.stringify(staff));
+    }
+
+    function saveTasks() {
+      localStorage.setItem('tasks-list', JSON.stringify(tasks));
+    }
+
+    function saveTemplates() {
+      localStorage.setItem('daily-templates', JSON.stringify(dailyTemplates));
+    }
+
+    function saveLogs() {
+      localStorage.setItem('daily-logs', JSON.stringify(dailyLogs));
+    }
+
+    function generateDailyTasks() {
+      const today = getDateKey(new Date());
+      const existingToday = tasks.filter(t => getDateKey(new Date(t.createdAt)) === today);
+      
+      dailyTemplates.forEach(template => {
+        const alreadyExists = existingToday.some(t => t.templateId === template.id);
+        if (!alreadyExists) {
+          const task = {
+            id: Date.now() + Math.random(),
+            templateId: template.id,
+            title: template.title,
+            description: template.description,
+            assignedTo: template.assignedTo,
+            category: template.category,
+            requiresPhoto: template.requiresPhoto,
+            subtasks: template.subtasks ? [...template.subtasks] : [],
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          };
+          tasks.push(task);
+        }
+      });
+      saveTasks();
+    }
+
+    function getDateKey(date) {
+      // Adjust for tasks completed between midnight and 2am - count as previous day
+      const d = new Date(date);
+      if (d.getHours() < 2) {
+        d.setDate(d.getDate() - 1);
+      }
+      return d.toISOString().split('T')[0];
+    }
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (tab === 'shifts') {
+        document.getElementById('shifts-tab').classList.remove('hidden');
+        document.getElementById('tasks-tab').classList.add('hidden');
+      } else {
+        document.getElementById('shifts-tab').classList.add('hidden');
+        document.getElementById('tasks-tab').classList.remove('hidden');
+      }
+    }
+
+    // Staff management
+    function addStaff() {
+      const input = document.getElementById('new-staff-name');
+      const name = input.value.trim();
+      if (name) {
+        staff.push({ name, notes: '', restrictions: [], jobHistory: [] });
+        staff.sort((a, b) => a.name.localeCompare(b.name));
+        saveStaff();
+        renderStaffList();
+        updateTaskAssigneeOptions();
+        input.value = '';
+      }
+    }
+
+    function clearAllStaff() {
+      if (staff.length === 0) {
+        alert('No staff to delete!');
+        return;
+      }
+      
+      if (confirm(`Are you sure you want to delete ALL ${staff.length} staff members? This cannot be undone!`)) {
+        staff = [];
+        saveStaff();
+        renderStaffList();
+        updateTaskAssigneeOptions();
+      }
+    }
+
+    function deleteCurrentPerson() {
+      if (confirm(`Delete ${currentPerson.name} from staff list?`)) {
+        staff = staff.filter(s => s.name !== currentPerson.name);
+        saveStaff();
+        renderStaffList();
+        updateTaskAssigneeOptions();
+        closePersonDetail();
+      }
+    }
+
+    function renderStaffList() {
+      const container = document.getElementById('staff-list');
+      document.getElementById('staff-count').textContent = staff.length;
+      
+      container.innerHTML = '';
+      
+      staff.forEach((person, index) => {
+        const card = document.createElement('div');
+        card.className = 'staff-card';
+        
+        const content = document.createElement('div');
+        content.style.flex = '1';
+        content.style.cursor = 'pointer';
+        content.innerHTML = `
+          <div class="font-bold">${person.name}</div>
+          ${person.restrictions?.length > 0 ? `<div class="text-sm">${person.restrictions.length} restriction(s)</div>` : ''}
+        `;
+        content.addEventListener('click', () => showPersonDetail(person.name));
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn-small';
+        deleteBtn.textContent = '✕';
+        deleteBtn.title = 'Delete staff member';
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm(`Delete ${person.name} from staff list?`)) {
+            staff.splice(index, 1);
+            saveStaff();
+            renderStaffList();
+            updateTaskAssigneeOptions();
+          }
+        });
+        
+        card.appendChild(content);
+        card.appendChild(deleteBtn);
+        container.appendChild(card);
+      });
+    }
+
+    function showPersonDetail(name) {
+      currentPerson = staff.find(s => s.name === name);
+      document.getElementById('shifts-main-view').classList.add('hidden');
+      document.getElementById('person-detail-view').classList.remove('hidden');
+      document.getElementById('person-name').textContent = currentPerson.name;
+      document.getElementById('person-notes').value = currentPerson.notes || '';
+      
+      const restrictionsList = document.getElementById('restrictions-list');
+      restrictionsList.innerHTML = allJobs.map(job => `
+        <label style="display: flex; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px; background: white; border-radius: 4px; cursor: pointer;">
+          <input type="checkbox" ${currentPerson.restrictions?.includes(job.name) ? 'checked' : ''} 
+                 onchange="toggleRestriction('${job.name}')">
+          <span style="font-size: 0.9rem;">${job.name}</span>
+        </label>
+      `).join('');
+    }
+
+    function toggleRestriction(jobName) {
+      if (!currentPerson.restrictions) currentPerson.restrictions = [];
+      const index = currentPerson.restrictions.indexOf(jobName);
+      if (index > -1) {
+        currentPerson.restrictions.splice(index, 1);
+      } else {
+        currentPerson.restrictions.push(jobName);
+      }
+    }
+
+    function savePersonDetails() {
+      currentPerson.notes = document.getElementById('person-notes').value;
+      const personIndex = staff.findIndex(s => s.name === currentPerson.name);
+      staff[personIndex] = currentPerson;
+      saveStaff();
+      closePersonDetail();
+    }
+
+    function closePersonDetail() {
+      document.getElementById('person-detail-view').classList.add('hidden');
+      document.getElementById('shifts-main-view').classList.remove('hidden');
+      currentPerson = null;
+    }
+
+    // Shift generation
+    function showShiftGenerator() {
+      document.getElementById('shifts-main-view').classList.add('hidden');
+      document.getElementById('shift-gen-view').classList.remove('hidden');
+      renderShiftStaffList();
+    }
+
+    function renderShiftStaffList() {
+      const container = document.getElementById('shift-staff-list');
+      container.innerHTML = staff.map(person => `
+        <label class="staff-card">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" onchange="toggleStaffForShift('${person.name}')" 
+                   ${selectedForShift.includes(person.name) ? 'checked' : ''}>
+            <span class="font-bold">${person.name}</span>
+          </div>
+        </label>
+      `).join('');
+      document.getElementById('selected-count').textContent = selectedForShift.length;
+    }
+
+    function toggleStaffForShift(name) {
+      const index = selectedForShift.indexOf(name);
+      if (index > -1) {
+        selectedForShift.splice(index, 1);
+      } else {
+        selectedForShift.push(name);
+      }
+      document.getElementById('selected-count').textContent = selectedForShift.length;
+    }
+
+    function generateShift() {
+      const available = selectedForShift.map(name => staff.find(s => s.name === name));
+      const assignments = [];
+      const usedPeople = new Set();
+
+      const jobsByRestriction = [...allJobs].sort((a, b) => {
+        const aCount = available.filter(p => !p.restrictions?.includes(a.name)).length;
+        const bCount = available.filter(p => !p.restrictions?.includes(b.name)).length;
+        return aCount - bCount;
+      });
+
+      for (const job of jobsByRestriction) {
+        const eligible = available.filter(person => 
+          !person.restrictions?.includes(job.name) && !usedPeople.has(person.name)
+        );
+
+        if (eligible.length === 0) continue;
+
+        const sorted = eligible.sort((a, b) => {
+          const aLastIndex = (a.jobHistory || []).lastIndexOf(job.name);
+          const bLastIndex = (b.jobHistory || []).lastIndexOf(job.name);
+          return aLastIndex - bLastIndex;
+        });
+
+        const assigned = sorted[0];
+        assignments.push({
+          person: assigned.name,
+          break: job.break,
+          group: job.group,
+          role: job.role,
+          closedown: job.closedown
+        });
+        usedPeople.add(assigned.name);
+
+        if (!assigned.jobHistory) assigned.jobHistory = [];
+        assigned.jobHistory.push(job.name);
+      }
+
+      const unassigned = available.filter(person => !usedPeople.has(person.name)).map(p => p.name);
+      
+      currentShift = { assigned: assignments, unassigned };
+      saveStaff();
+      renderShiftTable();
+    }
+
+    function renderShiftTable() {
+      document.getElementById('shift-selection').classList.add('hidden');
+      document.getElementById('shift-result').classList.remove('hidden');
+      
+      const table = document.getElementById('shift-table');
+      let html = `
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Break Group</th>
+            <th>Role / Till</th>
+            <th>Closedown Task</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      currentShift.assigned.forEach(a => {
+        const breakGroup = a.group ? `${a.break} ${a.group}` : a.break;
+        html += `
+          <tr>
+            <td><select onchange="swapPerson(this, '${a.person}', 'assigned')" style="width: 100%; padding: 4px;">
+              ${selectedForShift.map(name => `<option value="${name}" ${name === a.person ? 'selected' : ''}>${name}</option>`).join('')}
+            </select></td>
+            <td>${breakGroup}</td>
+            <td>${a.role}</td>
+            <td>${a.closedown}</td>
+          </tr>
+        `;
+      });
+
+      if (currentShift.unassigned.length > 0) {
+        html += `<tr><td colspan="4" style="background: #fef3c7; font-weight: 600;">Extra Staff (Assign Manually)</td></tr>`;
+        currentShift.unassigned.forEach(person => {
+          html += `
+            <tr class="extra-staff">
+              <td><select onchange="swapPerson(this, '${person}', 'unassigned')" style="width: 100%; padding: 4px;">
+                ${selectedForShift.map(name => `<option value="${name}" ${name === person ? 'selected' : ''}>${name}</option>`).join('')}
+              </select></td>
+              <td><input type="text" placeholder="Break group..." style="width: 100%; padding: 4px;"></td>
+              <td><input type="text" placeholder="Role..." style="width: 100%; padding: 4px;"></td>
+              <td><input type="text" placeholder="Closedown..." style="width: 100%; padding: 4px;"></td>
+            </tr>
+          `;
+        });
+      }
+
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+    function swapPerson(select, oldPerson, sourceType) {
+      const newPerson = select.value;
+      
+      if (sourceType === 'assigned') {
+        const oldIdx = currentShift.assigned.findIndex(a => a.person === oldPerson);
+        const newIdx = currentShift.assigned.findIndex(a => a.person === newPerson);
+        
+        if (newIdx !== -1 && newIdx !== oldIdx) {
+          // Swap
+          currentShift.assigned[oldIdx].person = newPerson;
+          currentShift.assigned[newIdx].person = oldPerson;
+        } else {
+          currentShift.assigned[oldIdx].person = newPerson;
+        }
+      } else {
+        const unassignedIdx = currentShift.unassigned.indexOf(oldPerson);
+        const assignedIdx = currentShift.assigned.findIndex(a => a.person === newPerson);
+        
+        if (assignedIdx !== -1) {
+          currentShift.assigned[assignedIdx].person = oldPerson;
+          currentShift.unassigned[unassignedIdx] = newPerson;
+        } else {
+          currentShift.unassigned[unassignedIdx] = newPerson;
+        }
+      }
+      
+      renderShiftTable();
+    }
+
+    function closeShiftGen() {
+      document.getElementById('shift-gen-view').classList.add('hidden');
+      document.getElementById('shifts-main-view').classList.remove('hidden');
+      document.getElementById('shift-selection').classList.remove('hidden');
+      document.getElementById('shift-result').classList.add('hidden');
+      selectedForShift = [];
+      currentShift = null;
+    }
+
+    // Tasks management
+    let currentTaskView = 'today';
+    let currentSubtasks = [];
+
+    function toggleTaskForm() {
+      const form = document.getElementById('task-form');
+      form.classList.toggle('hidden');
+      if (!form.classList.contains('hidden')) {
+        currentSubtasks = [];
+        renderSubtasksList();
+      }
+    }
+
+    function addSubtask() {
+      const input = document.getElementById('new-subtask');
+      const text = input.value.trim();
+      if (text) {
+        currentSubtasks.push({ text, completed: false });
+        renderSubtasksList();
+        input.value = '';
+      }
+    }
+
+    function removeSubtask(index) {
+      currentSubtasks.splice(index, 1);
+      renderSubtasksList();
+    }
+
+    function renderSubtasksList() {
+      const container = document.getElementById('subtasks-list');
+      if (currentSubtasks.length === 0) {
+        container.innerHTML = '<p style="color: #9ca3af; font-size: 0.9rem; font-style: italic;">No subtasks added</p>';
+        return;
+      }
+      container.innerHTML = currentSubtasks.map((st, idx) => `
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; margin-bottom: 4px;">
+          <input type="checkbox" disabled checked style="pointer-events: none;">
+          <span style="flex: 1;">${st.text}</span>
+          <button class="delete-btn-small" onclick="event.preventDefault(); removeSubtask(${idx})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function updateTaskAssigneeOptions() {
+      const select = document.getElementById('task-assignee');
+      select.innerHTML = '<option value="">Assign to...</option>' + 
+        staff.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+    }
+
+    function addTask() {
+      const title = document.getElementById('task-title').value.trim();
+      if (!title) return;
+
+      const isDaily = document.getElementById('task-daily').checked;
+
+      const taskData = {
+        title,
+        description: document.getElementById('task-description').value,
+        assignedTo: document.getElementById('task-assignee').value,
+        category: document.getElementById('task-category').value,
+        requiresPhoto: document.getElementById('task-photo').checked,
+        subtasks: currentSubtasks.length > 0 ? [...currentSubtasks] : null,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      if (isDaily) {
+        // Save as template
+        const template = {
+          id: Date.now(),
+          ...taskData
+        };
+        dailyTemplates.push(template);
+        saveTemplates();
+        
+        // Also create task for today
+        const task = {
+          id: Date.now() + 0.1,
+          templateId: template.id,
+          ...taskData
+        };
+        tasks.push(task);
+      } else {
+        const task = {
+          id: Date.now(),
+          ...taskData
+        };
+        tasks.push(task);
+      }
+
+      saveTasks();
+      renderTasks();
+      
+      document.getElementById('task-title').value = '';
+      document.getElementById('task-description').value = '';
+      document.getElementById('task-assignee').value = '';
+      document.getElementById('task-photo').checked = false;
+      document.getElementById('task-daily').checked = false;
+      currentSubtasks = [];
+      toggleTaskForm();
+    }
+
+    function clearTodayTasks() {
+      const today = getDateKey(new Date());
+      const todayTasks = tasks.filter(t => getDateKey(new Date(t.createdAt)) === today && t.status === 'pending');
+      
+      if (todayTasks.length === 0) {
+        alert('No pending tasks to delete today!');
+        return;
+      }
+      
+      if (confirm(`Delete all ${todayTasks.length} pending tasks for today? This cannot be undone!`)) {
+        tasks = tasks.filter(t => {
+          const taskDate = getDateKey(new Date(t.createdAt));
+          return !(taskDate === today && t.status === 'pending');
+        });
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function setTaskView(view) {
+      currentTaskView = view;
+      const buttons = document.querySelectorAll('#tasks-tab .flex .btn');
+      buttons.forEach(btn => btn.className = 'btn btn-secondary');
+      event.target.className = 'btn btn-primary';
+      
+      // Show/hide clear button based on view
+      const clearBtn = document.getElementById('clear-today-btn');
+      if (view === 'today') {
+        clearBtn.style.display = 'block';
+        currentHistoryDate = new Date();
+      } else {
+        clearBtn.style.display = 'none';
+      }
+      
+      renderTasks();
+    }
+
+    function changeHistoryDate(days) {
+      currentHistoryDate.setDate(currentHistoryDate.getDate() + days);
+      renderTasks();
+    }
+
+    function jumpToDate(dateString) {
+      currentHistoryDate = new Date(dateString + 'T12:00:00');
+      renderTasks();
+    }
+
+    function loadDailyLog() {
+      const dateKey = getDateKey(new Date());
+      const log = dailyLogs[dateKey] || {};
+      document.getElementById('log-stock').value = log.stock || '';
+      document.getElementById('log-rating').value = log.rating || '';
+      document.getElementById('log-notes').value = log.notes || '';
+    }
+
+    function saveDailyLog() {
+      const dateKey = getDateKey(new Date());
+      dailyLogs[dateKey] = {
+        stock: document.getElementById('log-stock').value,
+        rating: document.getElementById('log-rating').value,
+        notes: document.getElementById('log-notes').value,
+        savedAt: new Date().toISOString()
+      };
+      saveLogs();
+      alert('Daily log saved!');
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('tasks-container');
+      const dailyLog = document.getElementById('daily-log');
+      
+      if (currentTaskView === 'today') {
+        dailyLog.classList.remove('hidden');
+        loadDailyLog();
+        
+        const pendingTasks = tasks.filter(t => {
+          const taskDate = getDateKey(new Date(t.createdAt));
+          const today = getDateKey(new Date());
+          return t.status !== 'completed' && taskDate === today;
+        });
+        const categories = ['opening', 'cleaning', 'stock', 'compliance', 'closing', 'other'];
+        
+        if (pendingTasks.length === 0) {
+          container.innerHTML = '<div style="text-align: center; padding: 60px; color: #9ca3af;"><p style="font-size: 1.2rem;">No pending tasks</p><p>Click "New Task" to add one</p></div>';
+          return;
+        }
+
+        let html = '';
+        categories.forEach(cat => {
+          const catTasks = pendingTasks.filter(t => t.category === cat);
+          if (catTasks.length > 0) {
+            html += `<div class="category-header">${cat} Tasks</div>`;
+            catTasks.forEach(task => {
+              html += renderTaskCard(task);
+            });
+          }
+        });
+        container.innerHTML = html;
+        attachTaskDeleteListeners();
+        
+      } else if (currentTaskView === 'history') {
+        dailyLog.classList.add('hidden');
+        const dateKey = getDateKey(currentHistoryDate);
+        const dayTasks = tasks.filter(t => {
+          const taskDateKey = t.completedAt ? getDateKey(new Date(t.completedAt)) : getDateKey(new Date(t.createdAt));
+          return taskDateKey === dateKey;
+        });
+        
+        const dateStr = currentHistoryDate.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const dayLog = dailyLogs[dateKey];
+        
+        // Format date for input (YYYY-MM-DD)
+        const year = currentHistoryDate.getFullYear();
+        const month = String(currentHistoryDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentHistoryDate.getDate()).padStart(2, '0');
+        const inputDate = `${year}-${month}-${day}`;
+        
+        let html = `
+          <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="flex-between mb-4">
+              <button class="btn btn-secondary" onclick="changeHistoryDate(-1)">← Previous Day</button>
+              <h3 style="margin: 0;">${dateStr}</h3>
+              <button class="btn btn-secondary" onclick="changeHistoryDate(1)">Next Day →</button>
+            </div>
+            <div style="text-align: center;">
+              <label style="font-weight: 600; display: block; margin-bottom: 8px;">Jump to date:</label>
+              <input type="date" id="history-date-picker" value="${inputDate}" 
+                     onchange="jumpToDate(this.value)"
+                     style="padding: 8px 12px; border: 2px solid #4f46e5; border-radius: 8px; font-size: 1rem; text-align: center;">
+            </div>
+          </div>
+        `;
+        
+        if (dayLog) {
+          html += `
+            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+              <h4 style="color: #166534; margin-bottom: 12px;">Daily Log</h4>
+              ${dayLog.stock ? `<p><strong>Stock:</strong> ${dayLog.stock}</p>` : ''}
+              ${dayLog.rating ? `<p><strong>Shift Rating:</strong> ${dayLog.rating}/10</p>` : ''}
+              ${dayLog.notes ? `<p><strong>Notes:</strong> ${dayLog.notes}</p>` : ''}
+            </div>
+          `;
+        }
+        
+        const completed = dayTasks.filter(t => t.status === 'completed');
+        const pending = dayTasks.filter(t => t.status === 'pending');
+        const flagged = dayTasks.filter(t => t.status === 'flagged');
+        
+        if (completed.length === 0 && pending.length === 0 && flagged.length === 0) {
+          html += '<div style="text-align: center; padding: 60px; color: #9ca3af;"><p>No tasks for this day</p></div>';
+          container.innerHTML = html;
+          return;
+        }
+        
+        if (completed.length > 0) {
+          html += '<div class="category-header">✅ Completed Tasks</div>';
+          completed.forEach(t => html += renderTaskCard(t, true));
+        }
+        
+        if (flagged.length > 0) {
+          html += '<div class="category-header">⚠️ Flagged Tasks</div>';
+          flagged.forEach(t => html += renderTaskCard(t, true));
+        }
+        
+        if (pending.length > 0) {
+          html += '<div class="category-header">⏳ Pending Tasks</div>';
+          pending.forEach(t => html += renderTaskCard(t, true));
+        }
+        
+        container.innerHTML = html;
+        attachTaskDeleteListeners();
+        
+      } else if (currentTaskView === 'templates') {
+        dailyLog.classList.add('hidden');
+        if (dailyTemplates.length === 0) {
+          container.innerHTML = '<div style="text-align: center; padding: 60px; color: #9ca3af;"><p>No daily templates</p><p>Create a task and check "Repeat daily"</p></div>';
+          return;
+        }
+        
+        let html = '<div class="category-header">Daily Recurring Tasks</div>';
+        dailyTemplates.forEach(template => {
+          html += `
+            <div class="task-card" style="border: 2px solid #4f46e5;">
+              <div class="flex-between">
+                <div style="flex: 1;">
+                  <h4 class="font-bold">${template.title}</h4>
+                  ${template.description ? `<p class="text-sm" style="margin-top: 4px;">${template.description}</p>` : ''}
+                  <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: #6b7280;">
+                    ${template.assignedTo ? `<span>Assigned: ${template.assignedTo}</span>` : ''}
+                    <span style="text-transform: capitalize;">Category: ${template.category}</span>
+                    ${template.requiresPhoto ? '<span style="color: #f59e0b;">📷 Photo required</span>' : ''}
+                    ${template.subtasks ? `<span>📋 ${template.subtasks.length} subtasks</span>` : ''}
+                  </div>
+                  ${template.subtasks && template.subtasks.length > 0 ? `
+                    <div style="background: #f9fafb; padding: 8px; border-radius: 4px; margin-top: 8px;">
+                      <strong style="font-size: 0.9rem;">Checklist items:</strong>
+                      <ul style="margin: 4px 0 0 20px; font-size: 0.85rem;">
+                        ${template.subtasks.map(st => `<li>${st.text}</li>`).join('')}
+                      </ul>
+                    </div>
+                  ` : ''}
+                </div>
+                <button class="delete-btn-small template-delete-btn" data-template-id="${template.id}" title="Delete template">✕</button>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        attachTemplateDeleteListeners();
+      }
+    }
+
+    function attachTaskDeleteListeners() {
+      document.querySelectorAll('.task-delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const taskId = parseFloat(this.getAttribute('data-task-id'));
+          if (confirm('Delete this task?')) {
+            tasks = tasks.filter(t => t.id !== taskId);
+            saveTasks();
+            renderTasks();
+          }
+        });
+      });
+    }
+
+    function attachTemplateDeleteListeners() {
+      document.querySelectorAll('.template-delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const templateId = parseFloat(this.getAttribute('data-template-id'));
+          if (confirm('Delete this daily template? Future tasks will not be auto-created.')) {
+            dailyTemplates = dailyTemplates.filter(t => t.id !== templateId);
+            saveTemplates();
+            renderTasks();
+          }
+        });
+      });
+    }
+
+    function renderTaskCard(task, isHistory = false) {
+      const statusClass = task.status === 'completed' ? 'completed' : task.status === 'flagged' ? 'flagged' : '';
+      
+      let subtasksHtml = '';
+      if (task.subtasks && task.subtasks.length > 0) {
+        subtasksHtml = `
+          <div style="background: #f9fafb; padding: 12px; border-radius: 4px; margin-top: 8px;">
+            <strong style="font-size: 0.9rem; display: block; margin-bottom: 8px;">Checklist:</strong>
+            ${task.subtasks.map((st, idx) => `
+              <label style="display: flex; align-items: flex-start; gap: 8px; padding: 6px; cursor: ${isHistory ? 'default' : 'pointer'}; user-select: none; margin-bottom: 4px;">
+                <input type="checkbox" ${st.completed ? 'checked' : ''} 
+                       ${isHistory ? 'disabled' : `onchange="toggleSubtask(${task.id}, ${idx})"`}
+                       style="margin-top: 2px; min-width: 16px; cursor: ${isHistory ? 'default' : 'pointer'};">
+                <span style="font-size: 0.9rem; line-height: 1.4; flex: 1; word-wrap: break-word; ${st.completed ? 'text-decoration: line-through; color: #9ca3af;' : 'color: #374151;'}">${st.text}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      const allSubtasksComplete = task.subtasks ? task.subtasks.every(st => st.completed) : true;
+      
+      return `
+        <div class="task-card ${statusClass}" data-task-id="${task.id}">
+          <div class="flex-between mb-4">
+            <div style="flex: 1;">
+              <h4 class="font-bold">${task.title}</h4>
+              ${task.description ? `<p class="text-sm" style="margin-top: 4px;">${task.description}</p>` : ''}
+              <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: #6b7280;">
+                ${task.assignedTo ? `<span>Assigned: ${task.assignedTo}</span>` : ''}
+                <span style="text-transform: capitalize;">Category: ${task.category}</span>
+                ${task.requiresPhoto ? '<span style="color: #f59e0b;">📷 Photo required</span>' : ''}
+              </div>
+              ${subtasksHtml}
+            </div>
+            <button class="delete-btn-small task-delete-btn" data-task-id="${task.id}" title="Delete task">✕</button>
+          </div>
+          
+          ${task.status === 'flagged' ? `
+            <div class="alert alert-warning">⚠️ Issue: ${task.flaggedIssue || 'Unknown issue'}</div>
+          ` : ''}
+          
+          ${isHistory && task.status === 'completed' ? `
+            <div class="text-sm">
+              Completed by ${task.completedBy} • ${new Date(task.completedAt).toLocaleString()}
+              ${task.notes ? `<br>Notes: ${task.notes}` : ''}
+            </div>
+          ` : ''}
+          
+          ${task.status === 'pending' && !isHistory ? `
+            ${!allSubtasksComplete ? '<div class="alert alert-warning" style="margin-top: 8px;">⚠️ Complete all checklist items before marking task as complete</div>' : ''}
+            <div id="task-actions-${task.id}">
+              <div class="flex mt-4">
+                <button class="btn btn-success" onclick="showCompleteForm(${task.id})" ${!allSubtasksComplete ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>Complete</button>
+                <button class="btn btn-warning" onclick="showFlagForm(${task.id})">Flag Issue</button>
+              </div>
+            </div>
+            <div id="complete-form-${task.id}" class="hidden" style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 12px;">
+              <select id="completedBy-${task.id}" style="margin-bottom: 8px;">
+                <option value="">Who completed this?</option>
+                ${staff.map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
+              </select>
+              <textarea id="notes-${task.id}" placeholder="Notes (optional)..." rows="3"></textarea>
+              <div class="flex">
+                <button class="btn btn-success" onclick="completeTask(${task.id})">Mark Complete</button>
+                <button class="btn btn-secondary" onclick="hideCompleteForm(${task.id})">Cancel</button>
+              </div>
+            </div>
+            <div id="flag-form-${task.id}" class="hidden" style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 12px;">
+              <textarea id="flag-issue-${task.id}" placeholder="Describe the issue..." rows="3"></textarea>
+              <div class="flex">
+                <button class="btn btn-warning" onclick="flagTask(${task.id})">Flag Issue</button>
+                <button class="btn btn-secondary" onclick="hideFlagForm(${task.id})">Cancel</button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function toggleSubtask(taskId, subtaskIdx) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task && task.subtasks) {
+        task.subtasks[subtaskIdx].completed = !task.subtasks[subtaskIdx].completed;
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function showCompleteForm(id) {
+      document.getElementById(`task-actions-${id}`).classList.add('hidden');
+      document.getElementById(`complete-form-${id}`).classList.remove('hidden');
+    }
+
+    function hideCompleteForm(id) {
+      document.getElementById(`task-actions-${id}`).classList.remove('hidden');
+      document.getElementById(`complete-form-${id}`).classList.add('hidden');
+    }
+
+    function showFlagForm(id) {
+      document.getElementById(`task-actions-${id}`).classList.add('hidden');
+      document.getElementById(`flag-form-${id}`).classList.remove('hidden');
+    }
+
+    function hideFlagForm(id) {
+      document.getElementById(`task-actions-${id}`).classList.remove('hidden');
+      document.getElementById(`flag-form-${id}`).classList.add('hidden');
+    }
+
+    function completeTask(id) {
+      const completedBy = document.getElementById(`completedBy-${id}`).value;
+      if (!completedBy) return;
+      
+      const notes = document.getElementById(`notes-${id}`).value;
+      const task = tasks.find(t => t.id === id);
+      task.status = 'completed';
+      task.completedBy = completedBy;
+      task.completedAt = new Date().toISOString();
+      task.notes = notes;
+      
+      saveTasks();
+      renderTasks();
+    }
+
+    function flagTask(id) {
+      const issue = document.getElementById(`flag-issue-${id}`).value.trim();
+      if (!issue) return;
+      
+      const task = tasks.find(t => t.id === id);
+      task.status = 'flagged';
+      task.flaggedIssue = issue;
+      task.flaggedAt = new Date().toISOString();
+      
+      saveTasks();
+      renderTasks();
+    }
+
+    // Initialize on load
+    loadData();
+
+    // Allow Enter key to add staff
+    document.getElementById('new-staff-name').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addStaff();
+    });
   </script>
 </body>
 </html>
